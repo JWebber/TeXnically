@@ -66,7 +66,10 @@ namespace TeXnically
                     if (nd.Name == "g")
                     {
                         if (nd.Attributes != null)
-                            return nd.Attributes["id"].Value;
+                        {
+                            if(nd.Attributes["id"] !=null)
+                                return nd.Attributes["id"].Value;
+                        }
                     }
                 }
 

@@ -22,9 +22,9 @@
   <ItemGroup>
     <Resource Include="chi.eps" />
     <Resource Include="chi.png" />
-    <EmbeddedResource Include="texnically.ico">
+    <Resource Include="texnically.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

@@ -54,6 +54,41 @@ namespace TeXnically
             trayIcon.Text = "TeXnically";
             trayIcon.Icon = new System.Drawing.Icon("texnically.ico");
             trayIcon.Click += new EventHandler(trayIcon_Click);
+
+            // Load the paste override behaviour for the text box
+            CommandManager.AddPreviewCanExecuteHandler(tbInput, tbInput_onPreviewCE);
+            CommandManager.AddPreviewExecutedHandler(tbInput, tbInput_onPreviewE);
+        }
+
+        private void tbInput_onPreviewE(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                // .. and the clipboard contains an image
+                if (Clipboard.ContainsData("image/svg+xml"))
+                {
+                    LoadSvgFromClipboard();
+                    e.Handled = true;
+                }
+
+            }
+            else if (e.Command == ApplicationCommands.Copy)
+            {
+                if(tbInput.SelectedText == "")
+                {
+                    SaveSvgToClipboard();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void tbInput_onPreviewCE(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Paste || e.Command == ApplicationCommands.Copy)
+            {
+                e.CanExecute = true;
+                e.Handled = true;
+            }
         }
 
         private void postedSvgFromWeb(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -64,6 +99,11 @@ namespace TeXnically
 
         private void btnCompile_Click(object sender, RoutedEventArgs e)
         {
+            SaveSvgToClipboard();
+        }
+
+        private void SaveSvgToClipboard()
+        {
             byte[] bytes = Encoding.UTF8.GetBytes(LatexTools.TagSvgWithLatex(tbInput.Text, svgContent));
             System.IO.MemoryStream stream = new System.IO.MemoryStream(bytes, true);
             Clipboard.SetData("image/svg+xml", stream);
@@ -72,6 +112,11 @@ namespace TeXnically
         }
 
         private void btnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            LoadSvgFromClipboard();
+        }
+
+        private void LoadSvgFromClipboard()
         {
             try
             {
@@ -97,10 +142,18 @@ namespace TeXnically
                 string sanitisedInput = System.Web.HttpUtility.JavaScriptStringEncode(tbInput.Text);
                 var funcall = "convert(\"" + sanitisedInput + "\")";
                 await wbPreview.CoreWebView2.ExecuteScriptAsync(funcall);
+
+
+                double contentW = Convert.ToDouble(await wbPreview.ExecuteScriptAsync("document.getElementById(\"output\").getBoundingClientRect().width;"));
+                double contentH = Convert.ToDouble(await wbPreview.ExecuteScriptAsync("document.getElementById(\"output\").getBoundingClientRect().height;"));
+
+                double zoomScaleW = wbPreview.ActualWidth / contentW;
+                double zoomScaleH = wbPreview.ActualHeight / contentH;
+                sldZoom.Value = Math.Min(zoomScaleH, zoomScaleW) * 80;
             }
 
             // Refresh the status bar
-            tbkStatus.Text = "Ready; " + Math.Floor(sldZoom.Value).ToString() + "% zoom";
+            //tbkStatus.Text = "Ready; " + Math.Floor(sldZoom.Value).ToString() + "% zoom";
             tbkStatus.FontWeight = FontWeights.Regular;
             tbkStatus.Foreground = new SolidColorBrush(Colors.Black);
         }
@@ -122,7 +175,6 @@ namespace TeXnically
 
                 isLoaded = true;
             }
-
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
@@ -206,6 +258,20 @@ namespace TeXnically
         {
             trayIcon.Dispose();
             trayIcon = null;
+        }
+
+        private void PasteExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if(Clipboard.ContainsData("image/svg+xml"))
+            {
+                LoadSvgFromClipboard();
+            }    
+            e.Handled = true;
+        }
+
+        private void CopyExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            SaveSvgToClipboard();
         }
     }
 }

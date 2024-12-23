@@ -6,11 +6,17 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:TeXnically"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        mc:Ignorable="d" Height="370" Width="541" Loaded="Window_Loaded" Background="white" AllowDrop="True" Title="TeXnically" MinHeight="300" MinWidth="300" StateChanged="Window_StateChanged" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing">
+        mc:Ignorable="d" Height="370" Width="541" Loaded="Window_Loaded" Background="white" AllowDrop="True" Title="TeXnically" MinHeight="300" MinWidth="300" StateChanged="Window_StateChanged" IsVisibleChanged="Window_IsVisibleChanged" Closing="Window_Closing" Icon="texnically.ico">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Paste"
+                  Executed="PasteExecuted" />
+        <CommandBinding Command="ApplicationCommands.Copy"
+          Executed="CopyExecuted" />
+    </Window.CommandBindings>
     <Grid Background="white" AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop" DragLeave="Grid_DragLeave" DragOver="Grid_DragOver">
         <Grid Margin="10,0,180,36" VerticalAlignment="Bottom" Height="194" DragEnter="Grid_DragEnter">
             <Rectangle Margin="0,0,0,0" Stroke="Black" Fill="White" />
-            <wv2:WebView2 x:Name="wbPreview" Margin="5,5,5,5" Source="about:blank" NavigationCompleted="loaded"/>
+            <wv2:WebView2 x:Name="wbPreview" Margin="5,5,5,5" Source="about:blank" NavigationCompleted="loaded" />
         </Grid>
         <TextBox x:Name="tbInput" Margin="10,10,10,235" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="18" AllowDrop="True" TextChanged="tbInput_TextChanged"/>
         <Button x:Name="btnCompile" Content="Copy" Margin="0,0,10,80" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnCompile_Click" Width="160" Height="150">
